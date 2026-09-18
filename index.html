@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="작품을 올리면 우리 반 전시관이 완성돼요. 기기에만 저장하는 교실 작품 전시 도구.">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' blob: data:; media-src 'self' blob:; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'">
+  <title>기억 박물관 전시관</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%232a594b'/%3E%3Cpath d='M6 12L16 6l10 6M8 14v10m8-10v10m8-10v10M5 26h22' fill='none' stroke='%23f5e8c9' stroke-width='3'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="museum.css">
+  <script defer src="jsQR.js"></script><script defer src="qrcode.js"></script>
+  <script defer src="storage.js"></script><script defer src="qr.js"></script><script defer src="document.js"></script><script defer src="capture.js"></script><script defer src="walk.js"></script><script defer src="app.js"></script>
+</head>
+<body data-theme="museum">
+<header class="topbar"><a class="brand" href="./"><span class="brand-icon" aria-hidden="true">▥</span> 기억 박물관 <span class="brand-note">우리 반 작품 전시관</span></a><div class="row"><button id="helpBtn" class="quiet">? 사용 방법</button><button id="settingsBtn" class="quiet" hidden>⚙ 설정</button></div></header>
+<main>
+  <section id="welcome" class="welcome">
+    <div class="intro"><span class="eyebrow">기억 박물관 전시관</span><h1>우리의 순간이,<br>작품이 되는 곳.</h1><p>벽에 걸린 이야기를 따라<br>우리 반 전시관을 천천히 걸어 보세요.</p><div class="privacy">작품은 이 기기의 브라우저에만 저장됩니다.</div></div>
+    <form id="setupForm" class="setup-card">
+      <div class="section-label">우리 반 전시관 만들기 <span>전시 준비</span></div>
+      <label for="titleInput">전시관 이름</label><input id="titleInput" maxlength="60" value="우리 반 기억 박물관" required>
+      <div class="count-label"><label for="countInput">전시할 작품 수</label><span>최대 40개</span></div><div class="stepper"><button type="button" id="minus" aria-label="작품 수 줄이기">−</button><input id="countInput" type="number" min="1" max="40" value="24" required><span>개</span><button type="button" id="plus" aria-label="작품 수 늘리기">＋</button></div>
+      <fieldset class="theme-field"><legend>전시관 분위기</legend><div id="themeChoices" class="theme-choices"></div></fieldset>
+      <label for="setupCamera">카메라 선택 <span class="optional">나중에 연결해도 괜찮아요</span></label><div class="camera-choice"><select id="setupCamera"><option value="">기본 카메라</option></select><button id="discoverCamera" type="button">카메라 찾기</button></div>
+      <button type="submit" class="primary wide" disabled>새 전시관 만들기 <span aria-hidden="true">→</span></button><button type="button" id="resumeBtn" class="wide" disabled>기존 전시관 이어서 사용</button>
+    </form>
+  </section>
+  <section id="exhibition" hidden>
+    <div class="gallery-heading"><div><span class="eyebrow" id="themeLabel">기억 박물관</span><h1 id="galleryTitle"></h1><p id="progressText" aria-live="polite"></p></div><div class="row view-controls"><button id="captureViewBtn">촬영 패널</button><button id="galleryViewBtn" aria-pressed="true">전시관 걷기</button><button id="gridViewBtn" aria-pressed="false">작품 모아 보기</button><button id="fullscreenBtn">전체화면</button></div></div>
+    <div class="progress-track"><div id="progressBar"></div></div>
+    <section id="walkGallery" class="walk-gallery" aria-label="걸어 다니는 전시관">
+      <div id="museumViewport" class="museum-viewport" tabindex="0" aria-label="방향키 위아래로 걷고 왼쪽 오른쪽으로 둘러보세요. 작품을 누르면 크게 볼 수 있습니다."><div id="museumWorld" class="museum-world"></div></div>
+      <div class="room-top"><span class="room-label" id="roomPosition">전시관 입구</span><div class="room-actions"><select id="jumpToWall" aria-label="액자 번호로 바로 이동"><option value="">번호로 이동</option></select><button id="lastWallBtn">맨 뒤 액자</button><button id="entranceBtn">입구로</button></div></div>
+      <p class="walking-hint">방향키로 걷기 · 화면을 끌어 둘러보기 · 작품을 눌러 감상하기</p>
+      <div class="walk-bottom"><div class="tour-controls"><button id="previousWall">← 이전 작품</button><button id="tourBtn" class="tour-main" aria-pressed="false">천천히 둘러보기</button><button id="nextWall">다음 작품 →</button></div><div class="walk-pad" aria-label="걷기 조작"><button data-walk="forward" aria-label="앞으로 걷기">↑<span>앞으로</span></button><button data-walk="left" aria-label="왼쪽으로 둘러보기">←<span>왼쪽</span></button><button data-walk="back" aria-label="뒤로 걷기">↓<span>뒤로</span></button><button data-walk="right" aria-label="오른쪽으로 둘러보기">→<span>오른쪽</span></button></div></div>
+    </section>
+    <div class="workspace" id="workspace">
+      <aside id="cameraPanel" class="camera-panel">
+        <div class="panel-heading"><h2>작품을 올려 주세요</h2><button id="closeCameraPanel">닫기 ×</button></div><span id="cameraBadge">카메라 꺼짐</span>
+        <div class="video-shell" id="videoShell"><div class="video-stage" id="videoStage"><video id="video" autoplay playsinline muted></video><div id="guide" class="guide"><span>작품을 이 안에 맞춰 주세요</span></div><div id="countdown" class="countdown" aria-live="assertive"></div></div><div id="cameraPlaceholder" class="camera-placeholder"><span aria-hidden="true">▣</span><strong>작품과 만날 준비를 해요</strong><p>실물화상기 또는 카메라를 연결해 주세요.</p></div></div>
+        <p id="captureStatus" class="capture-status" role="status">카메라를 시작하거나 사진으로 작품을 추가하세요.</p>
+        <label for="cameraSelect">카메라 선택</label><select id="cameraSelect"><option value="">기본 카메라</option></select>
+        <div class="row"><button id="startCamera" class="primary">카메라 시작</button><button id="stopCamera">카메라 끄기</button></div>
+        <button id="autoBtn" class="wide toggle" aria-pressed="true">자동 촬영 ON</button><button id="manualBtn" class="wide" disabled>지금 촬영 · 수동 촬영</button>
+        <p class="small">노트북 카메라·USB 실물화상기 모두 사용해요.<br>노트북에서는 작품을 카메라 앞에 들고 ‘지금 촬영’을 눌러 주세요. QR 자동 촬영도 가능합니다.</p>
+      </aside>
+      <div class="gallery-area"><div class="gallery-tools"><span id="galleryHint">빈 액자를 채워 볼까요?</span><label class="inline-label"><input type="checkbox" id="fitToggle"> 한 화면에 모아 보기</label></div><div id="gallery" class="gallery" aria-label="작품 전시관"></div></div>
+    </div>
+    <div class="teacher-toolbar"><div class="row"><button id="uploadBtn" class="primary">＋ 사진으로 작품 추가</button><button id="deleteWorksBtn">작품 삭제</button><button id="slideshowBtn">작품 감상</button><button id="qrBtn">QR 만들기</button><button id="exportBtn">전시관 이미지 저장</button></div><div class="row"><button id="deleteLastBtn" class="quiet">마지막 작품 삭제</button><button id="newBtn" class="quiet">새 전시관 만들기</button></div></div>
+    <input type="file" id="fileInput" accept="image/*" multiple hidden>
+  </section>
+</main>
+<footer><span>기억 박물관 전시관</span><span id="saveStatus">작품은 이 기기의 브라우저에만 저장됩니다.</span></footer>
+<div id="toast" class="toast" role="status" hidden></div><div id="arrival" class="arrival" hidden role="status"><div class="reveal-heading"><span>우리 반에 도착한 새로운 이야기</span><strong></strong></div><img alt="새로 등록된 작품"><p class="reveal-note">잠시 감상한 뒤, 전시관 벽에 걸어 둘게요.</p><div class="reveal-progress"></div></div>
+<dialog id="modal"><div class="modal-head"><h2 id="modalTitle"></h2><button id="closeModal" aria-label="닫기">닫기 ×</button></div><div id="modalBody"></div></dialog>
+<div id="printArea"></div>
+</body></html>

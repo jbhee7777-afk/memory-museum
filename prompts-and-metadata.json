@@ -1,0 +1,29 @@
+{
+  "mode": "built-in imagegen",
+  "assets": [
+    {
+      "file": "museum-wall-panel.png",
+      "width": 1536,
+      "height": 1024,
+      "opening": {
+        "x": 0.284,
+        "y": 0.281,
+        "w": 0.432,
+        "h": 0.453
+      },
+      "prompt": "Use case: photorealistic-natural. Asset type: virtual museum wall texture, landscape 3:2 image. Perfectly front-facing orthographic architectural photograph of ONE warm ivory plaster museum wall bay. Ceiling cornice at the top, discreet brass picture light centered above ONE large refined antique gold and wood rectangular frame with a completely blank warm-white art opening. Dark oak baseboard at the very bottom. Frame outer bounds approximately x=25%-75%, y=20%-83%; empty inner white opening x=29%-71%, y=25%-78%. Entire image is the flat wall elevation, perfectly square and straight, no perspective whatsoever. Realistic subtle plaster texture, premium welcoming museum, gentle picture-light cone, beautiful architectural photography. Blank opening is a uniform flat warm-white rectangle for later overlay of user artwork. No artwork, no people, no furniture, no floor, no text, no watermark. Wall sides continue seamlessly without columns."
+    },
+    {
+      "file": "museum-floor.png",
+      "width": 1254,
+      "height": 1254,
+      "prompt": "Use case: photorealistic-natural. Asset type: square seamless repeating floor texture for virtual museum. Straight-down orthographic realistic photograph of medium honey oak herringbone parquet flooring, filling the complete square edge to edge. Natural fine wood grain, tasteful warm medium honey finish, consistent small parquet planks, realistic restrained variation between planks. Perfectly even diffuse lighting. Seamless tileable repeating pattern with aligned edges. No perspective, no objects, no border, no room, no shadows, no text, no watermark."
+    },
+    {
+      "file": "museum-entry.png",
+      "width": 1672,
+      "height": 941,
+      "prompt": "Use case: photorealistic-natural. Asset type: 16:9 wide welcome-screen background for a classroom virtual museum. Editorial architectural interior photograph looking down a beautiful warm classical small museum gallery. Warm ivory plaster walls, honey oak herringbone parquet floor, understated antique gold frames containing completely blank white canvases, ceiling track lights, soft afternoon light. Welcoming prestigious but not gaudy. Refined restrained cornices, beautiful realistic material texture and architectural proportions, natural photographic light and depth. No people, no text, no watermark, no artwork or illustrations inside the frames; every canvas is completely blank white."
+    }
+  ]
+}
