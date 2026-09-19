@@ -17,3 +17,50 @@ body[data-theme=art] .museum-wall-photo{filter:brightness(1.07) saturate(.65)}bo
 /* 바로 이동 및 작품 삭제는 모바일에서도 항상 닿을 수 있는 크기로 표시합니다. */
 .room-actions{display:flex;gap:7px;pointer-events:auto}.room-actions select{max-width:180px;background:#fffbeded;font-size:.875rem;min-height:44px;color:#514b3b}.room-actions button{min-height:44px}.delete-works-list{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}.delete-works-list button{display:flex;flex-direction:column;gap:12px;padding:12px;min-width:0}.delete-works-list img{width:100%;height:120px;object-fit:contain}.delete-works-list span{font-size:.95rem;color:#933e32}.camera-panel #cameraBadge{overflow-wrap:anywhere}.room-top .room-label{max-width:35%;line-height:1.6}
 @media(max-width:760px){.room-top{align-items:start;gap:8px}.room-actions{display:grid;grid-template-columns:1fr 1fr;gap:5px;width:195px;flex-shrink:0}.room-actions select{grid-column:1/-1;width:100%;max-width:none;font-size:.875rem}.room-actions button{font-size:.875rem;min-height:44px;padding:6px}.room-top .room-label{max-width:calc(100% - 203px);font-size:.8rem}.walking-hint{display:none}.delete-works-list{grid-template-columns:repeat(2,minmax(0,1fr))}.delete-works-list img{height:110px}#deleteWorksBtn{color:#89372d}}
+
+/* 독립된 전시관, 사진 프레임과 넓은 촬영·크롭 작업 공간 */
+.topbar .brand{background:none;border:0;padding:0;display:flex;align-items:center;gap:10px;text-align:left;color:var(--ink)}
+.welcome{grid-template-columns:minmax(0,1fr) minmax(340px,440px);align-items:start}
+.intro{grid-column:1;grid-row:1;padding-bottom:12px}.setup-card{grid-column:2;grid-row:1/3}
+.room-lobby{grid-column:1;grid-row:2;color:white;min-width:0}.room-lobby h2{font-family:Batang,serif;font-size:1.7rem;font-weight:400;margin:0}.room-lobby>p{font-size:.9rem;color:#f0ece2}
+#roomList{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:15px;max-height:440px;overflow:auto;padding:5px}
+.room-card{background:#fffdf2f2;display:flex;flex-direction:column;gap:10px;padding:0 0 16px;text-align:left;overflow:hidden;border:1px solid #ece3cd;box-shadow:0 12px 30px #0002;min-width:0}
+.room-card img{width:100%;height:100px;object-fit:cover}.room-card strong,.room-card span{padding:0 15px;overflow-wrap:anywhere}.room-card strong{font-size:1.05rem}.room-card span{font-size:.8rem;color:#67604e}
+.museum-bay{overflow:visible;background:#ece8df}.museum-bay>.museum-wall-photo{width:100%;height:100%;object-fit:cover;object-position:left;clip-path:inset(0);content:url('museum-wall-panel.png')}
+.museum-bay::before{content:'';position:absolute;inset:0;background:url('museum-wall-panel.png') left center / 900% 100%;transform:translateZ(.5px)}
+.museum-bay>.museum-wall-photo{visibility:hidden}
+.museum-ceiling{background:#eee9df url('museum-ceiling.png') center / 1300px 1300px;box-shadow:inset 0 0 80px #8f79532b}
+.wall-painting,.wall-painting:hover:not(:disabled){left:50%;top:49%;transform:translate(-50%,-50%) translateZ(3px);padding:32px;max-width:none;max-height:none;background:#d3b574 url('museum-wall-panel.png') 50% 50.5% / 199% 177%;overflow:hidden;box-shadow:7px 12px 16px #35260940!important;border:0}
+.wall-painting img{background:white;width:100%;height:100%;object-fit:contain}.wall-empty{background:#faf7ef;font-size:32px}
+.wall-caption{top:87%;left:22%;width:56%;text-align:center}.wall-caption span{font-size:14px}
+.museum-door-wall{background:url('museum-door.png') center/100% 100%}
+.museum-door{position:absolute;left:32%;top:12%;width:36%;height:88%;border:0;background:transparent;transform:translateZ(2px);padding:0;display:flex;justify-content:center;align-items:start}
+.museum-door:hover:not(:disabled){background:#ffebaf18;transform:translateZ(2px)}.museum-door span{margin-top:35px;background:#fff8e6ed;color:#473a26;border:1px solid #bca77a;font-size:18px;letter-spacing:.1em;padding:13px 24px;box-shadow:0 3px 16px #0003}
+.grid-mode .gallery{align-items:center}.grid-mode .art-slot{padding:10px 8px;align-self:center}
+.grid-mode .frame,.grid-mode .fit .frame{position:relative;width:100%;height:auto;max-width:360px;max-height:none;aspect-ratio:4/5;padding:7%!important;background:#c6a166 url('museum-wall-panel.png') 50% 50.5%/199% 177%;box-shadow:3px 7px 15px #2a210e25!important;overflow:hidden}
+.grid-mode .frame img{position:static;width:100%;height:100%;object-fit:contain;background:#fff}.grid-mode .frame.empty{background:#c6a166 url('museum-wall-panel.png') 50% 50.5%/199% 177%}.grid-mode .empty-mark{background:#faf6eb;width:100%;height:100%;display:grid;place-items:center}
+.view-controls #captureViewBtn,#shootBtn{background:#725325;color:#fff;border:1px solid #725325;font-weight:700;box-shadow:0 2px 8px #3a2c1420}
+.camera-panel{left:50%;right:auto;top:50%;transform:translate(-50%,-50%);width:min(1080px,94vw);max-width:none;max-height:92dvh;padding:24px;z-index:25;display:grid;grid-template-columns:minmax(0,2fr) minmax(230px,1fr);gap:10px 24px;box-shadow:0 0 0 100vmax #16140fc9,0 20px 80px #0008;isolation:isolate}
+.camera-panel .panel-heading{grid-column:1/-1;margin:0}.camera-panel .panel-heading h2{font-size:1.4rem}.camera-panel .panel-heading button{font-size:1rem;padding:10px;min-height:44px}
+.camera-panel .video-shell{grid-column:1;grid-row:2/11;align-self:start;margin:0;aspect-ratio:auto;min-height:370px;height:min(65dvh,600px)}
+.camera-panel .video-stage{width:100%;height:100%}.camera-panel .video-stage video{width:100%;height:100%;object-fit:contain}.camera-panel .video-stage.active{display:flex;align-items:center}
+.camera-panel #cameraBadge,.camera-panel .capture-status,.camera-panel>label,.camera-panel>select,.camera-panel>.row,.camera-panel>.wide,.camera-panel>.small{grid-column:2;margin:0;align-self:start}
+.camera-panel #manualBtn{min-height:60px;background:#725325;color:white;font-size:1.1rem;font-weight:700}.camera-panel #cameraBadge{font-size:.85rem}.camera-panel .guide{display:none}
+.camera-panel .small{font-size:.85rem}.camera-panel .capture-status{min-height:0;padding:8px 0}
+#modal.artwork-modal{width:min(1400px,97vw);max-height:96dvh;padding:20px}.artwork-modal .view-image{width:100%;height:73dvh;max-height:73dvh;object-fit:contain}
+#cropDialog{width:min(1260px,96vw);max-height:96dvh;padding:24px;overflow:auto}#cropDialog .modal-head{margin-bottom:8px}#cropHelp{line-height:1.6;margin:0 0 18px;color:#5c594e;font-size:.95rem}
+.crop-layout{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);gap:32px;align-items:center;background:#eeece5;padding:26px;border-radius:6px}
+.crop-stage{position:relative;width:100%;margin:auto;touch-action:none;line-height:0}.crop-stage>canvas{width:100%;height:auto;display:block}.crop-stage>svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible;pointer-events:none}.crop-stage polygon{fill:#ffffff0a;stroke:#ffdc69;stroke-width:.6;vector-effect:non-scaling-stroke}
+.crop-handle{position:absolute;transform:translate(-50%,-50%);width:44px;height:44px;min-height:44px;padding:0;display:grid;place-items:center;touch-action:none;background:#ffdc69;color:#302400;border:3px solid #fff;border-radius:50%;box-shadow:0 2px 9px #0007;font-size:16px;font-weight:700;z-index:1;line-height:1}
+.crop-handle:hover:not(:disabled){transform:translate(-50%,-50%);background:#ffeaa6}.crop-handle:focus-visible{outline:4px solid #287cc7}
+.crop-result{display:flex;flex-direction:column;align-items:center;gap:15px;min-width:0}.crop-result>span{font-size:.85rem;color:#5b5548}.crop-result canvas{max-width:100%;max-height:51dvh;object-fit:contain;box-shadow:0 5px 25px #0003;background:white}
+.crop-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:22px;flex-wrap:wrap}.crop-actions button{min-height:48px}.crop-actions .primary{background:#725325;border-color:#725325}
+.room-actions #exitRoomBtn{background:#4c493d;color:white}
+@media(max-width:760px){
+ .welcome{grid-template-columns:1fr;margin:0}.intro,.room-lobby,.setup-card{grid-column:1;grid-row:auto}.room-lobby{order:1}.setup-card{order:2}.intro{order:0}.brand-note{display:none}
+ #roomList{grid-template-columns:1fr;max-height:330px}.room-card{display:grid;grid-template-columns:100px minmax(0,1fr);gap:8px;padding:0}.room-card img{grid-row:1/3;height:105px}.room-card strong{padding:15px 12px 0 0}.room-card span{padding:0 12px 12px 0}
+ .camera-panel{left:50%;right:auto;top:50%;width:96vw;max-height:96dvh;margin:0;padding:16px;display:flex;flex-direction:column;gap:9px}.camera-panel .video-shell{height:43dvh;min-height:220px;flex-shrink:0;width:100%}.camera-panel .panel-heading h2{font-size:1.05rem}.camera-panel .small{display:none}.camera-panel #manualBtn{min-height:54px;position:sticky;bottom:0}.camera-panel .row{flex-shrink:0}.camera-panel select{margin:0}
+ .camera-panel #autoBtn{min-height:42px}#modal.artwork-modal{padding:14px}.artwork-modal .view-image{height:70dvh;max-height:70dvh}
+ #cropDialog{padding:16px}#cropDialog .modal-head h2{font-size:1.05rem}.crop-layout{grid-template-columns:1fr;padding:25px;gap:24px}.crop-stage{max-height:38dvh}.crop-stage>canvas{max-height:38dvh;width:100%;object-fit:fill}.crop-result canvas{max-height:22dvh}.crop-result>span{font-size:.8rem}.crop-actions{gap:8px;margin-top:16px}.crop-actions button{font-size:.85rem;flex:1}.crop-actions .primary{flex-basis:100%}.room-actions #exitRoomBtn{grid-column:1/-1}.room-actions{width:175px}.room-top .room-label{max-width:calc(100% - 183px)}
+ .teacher-toolbar .row:first-child{gap:8px}.teacher-toolbar #uploadBtn,.teacher-toolbar #shootBtn{min-height:48px}
+}

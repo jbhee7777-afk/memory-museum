@@ -25,9 +25,36 @@ window.MuseumStore = (() => {
     const database = await open();
     return new Promise((resolve, reject) => {
       const tx = database.transaction('exhibitions', 'readwrite');
-      tx.objectStore('exhibitions').put(value, 'current');
+      const records = tx.objectStore('exhibitions');
+      value.id ||= crypto.randomUUID();
+      records.put(value, 'current');
+      records.put(value, 'room:' + value.id);
+      const index = records.get('rooms');
+      index.onsuccess = () => {
+        const rooms = index.result || [];
+        const info = { id: value.id, title: value.settings.title, theme: value.settings.theme, count: value.settings.count, occupied: value.works.filter(Boolean).length };
+        const at = rooms.findIndex(r => r.id === value.id);
+        if (at < 0) rooms.push(info); else rooms[at] = info;
+        records.put(rooms, 'rooms');
+      };
       tx.oncomplete = resolve; tx.onerror = () => reject(tx.error); tx.onabort = () => reject(tx.error);
     });
   }
-  return { read, write };
+  async function list() {
+    const current = await read();
+    if (current && !current.id) await write(current);
+    const database = await open();
+    return new Promise((resolve, reject) => {
+      const r = database.transaction('exhibitions').objectStore('exhibitions').get('rooms');
+      r.onsuccess = () => resolve(r.result || []); r.onerror = () => reject(r.error);
+    });
+  }
+  async function room(id) {
+    const database = await open();
+    return new Promise((resolve, reject) => {
+      const r = database.transaction('exhibitions').objectStore('exhibitions').get('room:' + id);
+      r.onsuccess = () => resolve(r.result || null); r.onerror = () => reject(r.error);
+    });
+  }
+  return { read, write, list, room };
 })();

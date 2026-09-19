@@ -21,7 +21,7 @@ window.MuseumCapture = (() => {
     if (settings.autoDocument && window.MuseumAdvanced) {
       try { output = MuseumAdvanced.documentCrop(c); if (output) mode = '종이 자동 보정'; } catch { output = null; }
     }
-    output ||= crop(c, guide(c.width, c.height, settings.landscape));
+    if (settings.review || !output) { const reviewed = await MuseumCrop.review(c); if (!reviewed) return null; output = reviewed; mode = '종이 크롭 · 원근 보정'; }
     if (settings.hideQR && window.MuseumAdvanced) { try { MuseumAdvanced.hideQR(output); } catch {} }
     return { blob: await blob(output), mode };
   }
@@ -31,8 +31,9 @@ window.MuseumCapture = (() => {
     try {
       img.src = url; await img.decode();
       if (img.naturalWidth * img.naturalHeight > 60000000) throw new Error('large image');
-      // 업로드 사진은 작품 내용을 자르지 않고 최대 1600px로 줄여 저장합니다.
-      return { blob: await blob(crop(img, { x: 0, y: 0, w: img.naturalWidth, h: img.naturalHeight })), mode: '사진 업로드' };
+      const source = crop(img, { x: 0, y: 0, w: img.naturalWidth, h: img.naturalHeight });
+      const output = await MuseumCrop.review(source);
+      return output ? { blob: await blob(output), mode: '사진 종이 보정' } : null;
     } finally { URL.revokeObjectURL(url); }
   }
   return { guide, make, blob, crop, fromVideo, fromFile };

@@ -39,12 +39,18 @@ window.MuseumWalk = (() => {
         painting.onclick = () => { if (dragged || pending >= 0) return; stopTour(); if (work) onOpen(slot); else focus(slot); };
         const label = document.createElement('div'); label.className = 'wall-caption'; label.textContent = `전시물 ${pad(slot)}`; if (work?.name) { const name = document.createElement('span'); name.textContent = work.name; label.append(name); }
         el.append(painting, label);
+        const sizeFrame = (w,h) => { const scale = Math.min(520 / w, 380 / h); Object.assign(painting.style,{width:(w*scale+64)+'px',height:(h*scale+64)+'px'}); painting.dataset.orientation = h > w ? 'portrait' : 'landscape'; };
+        sizeFrame(work?.width || 700,work?.height || 1000);
+        if(work) { const image = painting.querySelector('img'); image.onload = () => sizeFrame(image.naturalWidth,image.naturalHeight); }
       }
       world.append(el);
     }
-    const end = surface('museum-end', WIDTH, HEIGHT, `translate3d(0,0,${-depth}px)`);
-    const photograph = document.createElement('img'); photograph.src = 'museum-wall-panel.png'; photograph.alt = ''; photograph.className = 'museum-wall-photo';
-    const title = document.createElement('div'); title.className = 'end-sign'; const strong = document.createElement('strong'); strong.textContent = data.settings.title; const sub = document.createElement('span'); sub.textContent = '우리의 이야기가 머무는 곳'; title.append(strong, sub); end.append(photograph, title); world.append(end);
+    for (const exit of [false,true]) {
+      const end = surface('museum-door-wall', WIDTH, HEIGHT, exit ? `translate3d(0,0,${-depth}px)` : 'translate3d(0,0,800px) rotateY(180deg)');
+      const door = document.createElement('button'); door.className = 'museum-door'; door.setAttribute('aria-label', exit ? '출구 문 · 전시관 로비로 나가기' : '입구 문 · 전시관 로비로 나가기');
+      const label = document.createElement('span'); label.textContent = exit ? '출구 · 로비로 나가기' : '입구 · 로비로 나가기'; door.append(label);
+      door.onclick = () => { if (!dragged && pending < 0) window.dispatchEvent(new Event('museum-exit')); }; end.append(door); world.append(end);
+    }
     target.z = clamp(target.z, -depth + 380, 500); camera.z = clamp(camera.z, -depth + 380, 500); if (selected >= data.settings.count) selected = -1;
     const jump = $('jumpToWall'); jump.replaceChildren(new Option('번호로 이동', ''));
     for (let i = 0; i < data.settings.count; i++) jump.add(new Option(`전시물 ${pad(i)}${data.works[i] ? ' · 등록됨' : ''}`, i));
@@ -71,7 +77,7 @@ window.MuseumWalk = (() => {
     await move({ x: -side * 30, z: -(bay + .5) * BAY + 65, yaw: side * 84.5, pitch: 0 }, duration);
   }
   function stopTour() { tour = false; $('tourBtn').textContent = '천천히 둘러보기'; $('tourBtn').setAttribute('aria-pressed', 'false'); }
-  function stop() { stopTour(); keys.clear(); }
+  function stop() { stopTour(); stopTween(); pointer = null; keys.clear(); }
   async function navigate(step) {
     if (pending >= 0 || !data) return;
     stopTour(); const slot = selected < 0 ? (step > 0 ? 0 : data.settings.count - 1) : (selected + step + data.settings.count) % data.settings.count; await focus(slot);
@@ -96,7 +102,7 @@ window.MuseumWalk = (() => {
     overlay.dataset.finishedAt = performance.now(); overlay.hidden = true; image.getAnimations().forEach(a => a.cancel()); pending = -1;
     setTimeout(() => destination?.classList.remove('just-hung'), 1500);
   }
-  function interactive() { return active && !document.hidden && !$('modal').open && pending < 0; }
+  function interactive() { return active && !document.hidden && !$('modal').open && !$('cropDialog').open && !$('cameraPanel').matches(':not([hidden])') && pending < 0; }
   function tick(now) {
     const dt = Math.min(.04, (now - (last || now)) / 1000); last = now;
     if (active && !document.hidden) {

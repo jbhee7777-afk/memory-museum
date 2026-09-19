@@ -24,6 +24,14 @@
       "width": 1672,
       "height": 941,
       "prompt": "Use case: photorealistic-natural. Asset type: 16:9 wide welcome-screen background for a classroom virtual museum. Editorial architectural interior photograph looking down a beautiful warm classical small museum gallery. Warm ivory plaster walls, honey oak herringbone parquet floor, understated antique gold frames containing completely blank white canvases, ceiling track lights, soft afternoon light. Welcoming prestigious but not gaudy. Refined restrained cornices, beautiful realistic material texture and architectural proportions, natural photographic light and depth. No people, no text, no watermark, no artwork or illustrations inside the frames; every canvas is completely blank white."
+    },
+    {
+      "file": "museum-door.png",
+      "prompt": "Photorealistic perfectly frontal symmetrical closed walnut double door, brass handles, warm ivory neoclassical wall, no text, no people, landscape 3:2."
+    },
+    {
+      "file": "museum-ceiling.png",
+      "prompt": "Photorealistic orthographic straight-up ivory coffered museum ceiling, luminous frosted skylight, brass trim and carved plaster, square repeat texture, no walls, no people, no text."
     }
   ]
 }

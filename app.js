@@ -33,7 +33,7 @@ async function commit(candidate) {
 }
 function imageURL(work) { if (!imageURLs.has(work.id)) imageURLs.set(work.id, URL.createObjectURL(work.blob)); return imageURLs.get(work.id); }
 function cleanupURLs() { const ids = new Set((state?.works || []).filter(Boolean).map(w => w.id)); for (const [id, url] of imageURLs) if (!ids.has(id)) { URL.revokeObjectURL(url); imageURLs.delete(id); } }
-function updateBusy() { $('manualBtn').disabled = busy || !stream || nextSlot() < 0; $('uploadBtn').disabled = busy || nextSlot() < 0; }
+function updateBusy() { $('shootBtn').disabled = busy || nextSlot() < 0; $('manualBtn').disabled = busy || !stream || nextSlot() < 0; $('uploadBtn').disabled = busy || nextSlot() < 0; }
 function render() {
   if (!state) return;
   const s = state.settings; document.body.dataset.theme = s.theme;
@@ -48,7 +48,7 @@ function render() {
   state.works.forEach((work, i) => {
     const item = document.createElement('div'); item.className = 'art-slot'; item.dataset.slot = i;
     const frame = document.createElement(work ? 'button' : 'div'); frame.className = 'frame' + (work ? '' : ' empty');
-    if (work) { const img = document.createElement('img'); img.src = imageURL(work); img.alt = `전시물 ${number(i)}`; frame.append(img); frame.setAttribute('aria-label', `전시물 ${number(i)} 크게 보기`); frame.onclick = () => showArtwork(i); }
+    if (work) { const img = document.createElement('img'); img.src = imageURL(work); img.alt = `전시물 ${number(i)}`; img.onload = () => { frame.style.aspectRatio = `${img.naturalWidth + 80} / ${img.naturalHeight + 80}`; }; frame.style.aspectRatio = `${(work.width || 700) + 80} / ${(work.height || 1000) + 80}`; frame.append(img); frame.setAttribute('aria-label', `전시물 ${number(i)} 크게 보기`); frame.onclick = () => showArtwork(i); }
     else { const mark = document.createElement('span'); mark.className = 'empty-mark'; mark.textContent = number(i); frame.append(mark); frame.setAttribute('aria-label', `빈 전시 칸 ${number(i)}`); }
     const label = document.createElement('span'); label.className = 'art-label'; label.textContent = `전시물 ${number(i)}`; if (work?.name) label.title = work.name;
     item.append(frame, label); gallery.append(item);
@@ -70,10 +70,10 @@ function fitLayout() {
   const g = $('gallery'); g.style.setProperty('--cols', best.cols); g.style.setProperty('--rows', best.rows); g.style.setProperty('--fit-height', available + 'px'); g.style.setProperty('--fit-frame-width', Math.min((width - (best.cols - 1) * 14) / best.cols, ((available - (best.rows - 1) * 14) / best.rows - 24) * .8) + 'px');
 }
 function enterExhibition() { ready = true; document.body.classList.add('inside-museum'); $('welcome').hidden = true; $('exhibition').hidden = false; $('settingsBtn').hidden = false; showCapture(false); render(); MuseumWalk.setActive(true); }
-function showCapture(show) { $('cameraPanel').hidden = !show; $('workspace').classList.toggle('gallery-only', !show); requestAnimationFrame(fitLayout); }
+function showCapture(show) { document.body.classList.toggle('camera-open', show); $('captureViewBtn').setAttribute('aria-pressed', show); if (show) MuseumWalk.stop(); $('cameraPanel').hidden = !show; $('workspace').classList.toggle('gallery-only', !show); requestAnimationFrame(fitLayout); }
 // 이미 열린 창의 내용만 교체합니다. close() 직후 다시 열면 지연된 close 이벤트가
 // 새 삭제 확인을 취소한 것으로 처리되는 문제가 있어 닫았다 열지 않습니다.
-function openModal(title, content) { MuseumWalk.stop(); clearInterval(slideTimer); slideTimer = null; cancelCapture++; $('modalTitle').textContent = title; $('modalBody').replaceChildren(); if (typeof content === 'string') $('modalBody').innerHTML = content; else if (content) $('modalBody').append(content); if (!$('modal').open) $('modal').showModal(); }
+function openModal(title, content) { MuseumWalk.stop(); clearInterval(slideTimer); slideTimer = null; cancelCapture++; $('modalTitle').textContent = title; $('modalBody').replaceChildren(); if (typeof content === 'string') $('modalBody').innerHTML = content; else if (content) $('modalBody').append(content); $('modal').classList.toggle('artwork-modal', !!$('modalBody').querySelector('.view-image')); if (!$('modal').open) $('modal').showModal(); }
 function closeModal() { clearInterval(slideTimer); slideTimer = null; if ($('modal').open) $('modal').close(); }
 $('closeModal').onclick = closeModal; $('modal').addEventListener('close', () => { clearInterval(slideTimer); slideTimer = null; });
 function confirmAction(title, message, action = '삭제') {
@@ -90,12 +90,13 @@ async function newExhibition(fromSetup = false) {
   if (busy || !storageOK) return;
   busy = true; cancelCapture++; updateBusy();
   try {
-    if (state && !(await confirmAction('새 전시관 만들기', '현재 전시된 작품이 모두 지워집니다. 새 전시관을 만들까요?', '새로 만들기'))) return;
+    // 각 전시관은 별도 보관하며 새 전시관 생성으로 기존 작품을 지우지 않습니다.
     if (!fromSetup) {
       // 기존 데이터는 새 설정을 제출하고 저장에 성공할 때까지 유지합니다.
       stopCamera(); MuseumWalk.setActive(false); document.body.classList.remove('inside-museum'); ready = false; $('welcome').hidden = false; $('exhibition').hidden = true; $('settingsBtn').hidden = true;
       $('titleInput').value = DEFAULTS.title; $('countInput').value = DEFAULTS.count;
       themeChoices($('themeChoices'), 'setupTheme', DEFAULTS.theme); document.body.dataset.theme = DEFAULTS.theme;
+      await renderLobby(); $('setupForm').scrollIntoView({behavior:'smooth'}); $('titleInput').focus();
       $('setupForm').dataset.confirmed = 'yes'; $('resumeBtn').disabled = !state; return;
     }
     await createFromSetup();
@@ -104,7 +105,7 @@ async function newExhibition(fromSetup = false) {
 async function createFromSetup() {
   const count = Number($('countInput').value), title = $('titleInput').value.trim();
   if (!title || !Number.isInteger(count) || count < 1 || count > 40) { toast('전시관 이름과 1~40 사이의 작품 수를 입력해 주세요.'); return; }
-  const candidate = { version: 1, settings: { ...DEFAULTS, title, count, theme: document.querySelector('[name=setupTheme]:checked').value, device: $('setupCamera').value }, works: Array(count).fill(null) };
+  const candidate = { id: crypto.randomUUID(), version: 2, settings: { ...DEFAULTS, title, count, theme: document.querySelector('[name=setupTheme]:checked').value, device: $('setupCamera').value }, works: Array(count).fill(null) };
   if (await commit(candidate)) { delete $('setupForm').dataset.confirmed; stopCamera(); enterExhibition(); MuseumWalk.entrance(); }
 }
 $('setupForm').onsubmit = async e => {
@@ -114,6 +115,9 @@ $('setupForm').onsubmit = async e => {
 };
 $('resumeBtn').onclick = () => { if (state) { delete $('setupForm').dataset.confirmed; enterExhibition(); } };
 $('newBtn').onclick = () => newExhibition(false);
+$('shootBtn').onclick = async () => { if (busy) return; showCapture(true); if (!stream) await startCamera(); };
+$('lobbyBtn').onclick = leaveExhibition; $('exitRoomBtn').onclick = leaveExhibition;
+window.addEventListener('museum-exit', leaveExhibition);
 $('captureViewBtn').onclick = () => showCapture($('cameraPanel').hidden); $('closeCameraPanel').onclick = () => showCapture(false);
 $('galleryViewBtn').onclick = () => { showCapture(false); MuseumWalk.setActive(true); };
 $('gridViewBtn').onclick = () => { showCapture(false); MuseumWalk.setActive(false); requestAnimationFrame(fitLayout); };
@@ -222,8 +226,9 @@ async function capture(slot, qrText = null) {
       }
     }
     $('countdown').textContent = '찰칵!'; gate.lock(performance.now());
-    const result = await MuseumCapture.fromVideo($('video'), state.settings);
+    const result = await MuseumCapture.fromVideo($('video'), { ...state.settings, review: !qrText });
     $('videoShell').classList.add('flash'); setTimeout(() => $('videoShell').classList.remove('flash'), 350);
+    if (!result) { status('촬영을 취소했어요. 다시 촬영할 수 있습니다.'); return; }
     const saved = await register(result.blob, slot);
     status(saved ? '촬영했어요 (' + result.mode + '). 작품을 치우고 다음 작품을 올려 주세요.' : '저장하지 못했어요. 저장 공간을 확인한 후 다시 촬영해 주세요.');
   } catch { toast('촬영을 완료하지 못했어요. 다시 촬영하거나 사진으로 작품을 추가해 주세요.'); }
@@ -263,7 +268,8 @@ async function completed() {
 }
 async function register(blob, slot) {
   if (slot < 0 || state.works[slot]) return false;
-  const work = { id: crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random()}`, blob, name: '', createdAt: Date.now() };
+  const image = await createImageBitmap(blob); const width = image.width, height = image.height; image.close();
+  const work = { width, height, id: crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random()}`, blob, name: '', createdAt: Date.now() };
   const works = state.works.slice(); works[slot] = work;
   if (!(await commit({ ...state, works }))) return false;
   MuseumWalk.prepareArrival(slot); render(); chime(); await arrival(slot, work);
@@ -277,7 +283,7 @@ $('fileInput').onchange = async e => {
   try {
     for (const file of files) {
       const slot = nextSlot(); if (slot < 0) { toast('전시관이 가득 찼어요. 작품 수를 늘리거나 새 전시관을 만들어 주세요.'); break; }
-      try { const result = await MuseumCapture.fromFile(file); if (!(await register(result.blob, slot))) break; }
+      try { const result = await MuseumCapture.fromFile(file); if (!result) break; if (!(await register(result.blob, slot))) break; }
       catch { toast('읽을 수 없는 사진이에요. 30MB 이하의 JPG·PNG·WebP 사진으로 다시 시도해 주세요.'); }
     }
   } finally { busy = false; updateBusy(); }
@@ -286,7 +292,7 @@ function showArtwork(slot) {
   const work = state.works[slot]; if (!work) return;
   const content = document.createElement('div'), img = document.createElement('img'); img.className = 'view-image'; img.src = imageURL(work); img.alt = `전시물 ${number(slot)}`; content.append(img);
   if (work.name) { const p = document.createElement('p'); p.textContent = work.name; content.append(p); }
-  const row = document.createElement('div'); row.className = 'row'; const del = document.createElement('button'); del.className = 'danger'; del.textContent = '이 작품 삭제'; del.onclick = () => removeWork(slot); row.append(del); content.append(row);
+  const row = document.createElement('div'); row.className = 'row'; const recrop = document.createElement('button'); recrop.textContent = '종이 크롭 다시 맞추기'; recrop.onclick = () => recropWork(slot); row.append(recrop); const del = document.createElement('button'); del.className = 'danger'; del.textContent = '이 작품 삭제'; del.onclick = () => removeWork(slot); row.append(del); content.append(row);
   openModal(`전시물 ${number(slot)}`, content);
 }
 async function removeWork(slot) {
@@ -333,8 +339,39 @@ $('settingsBtn').onclick = () => {
   };
 };
 
+async function renderLobby() {
+  const rooms = await MuseumStore.list(); const list = $('roomList'); list.replaceChildren();
+  $('roomLobby').hidden = !rooms.length;
+  for (const room of rooms) {
+    const button = document.createElement('button'); button.className = 'room-card'; button.dataset.room = room.id;
+    const image = document.createElement('img'); image.src = 'museum-entry.png'; image.alt = '';
+    const title = document.createElement('strong'); title.textContent = room.title;
+    const detail = document.createElement('span'); detail.textContent = `${THEMES[room.theme] || '전시관'} · 작품 ${room.occupied} / ${room.count} · 입장 →`;
+    button.append(image,title,detail); button.onclick = async () => {
+      if (busy) return; busy = true;
+      try { const roomState = await MuseumStore.room(room.id); if (roomState && await commit(roomState)) { enterExhibition(); MuseumWalk.entrance(); } }
+      catch { failSave(); } finally { busy = false; updateBusy(); }
+    }; list.append(button);
+  }
+}
+async function leaveExhibition() {
+  if (busy) { toast('작품 등록을 마친 뒤 로비로 나갈 수 있어요.'); return; }
+  closeModal(); stopCamera(); MuseumWalk.stop(); MuseumWalk.setActive(false); showCapture(false);
+  ready = false; document.body.classList.remove('inside-museum'); $('welcome').hidden = false; $('exhibition').hidden = true; $('settingsBtn').hidden = true;
+  try { await renderLobby(); } catch { failSave(); } window.scrollTo(0,0);
+}
+async function recropWork(slot) {
+  if (busy) return; busy = true; updateBusy(); const work = state.works[slot]; closeModal();
+  try {
+    const result = await MuseumCapture.fromFile(work.blob); if (!result) return;
+    const image = await createImageBitmap(result.blob); const width = image.width, height = image.height; image.close();
+    const works = state.works.slice(); works[slot] = {...work,id:crypto.randomUUID(),blob:result.blob,width,height};
+    if (await commit({...state,works})) { render(); toast('종이 크롭과 액자 방향을 바꿨어요.'); }
+  } catch { toast('작품을 보정하지 못했어요. 원래 작품은 유지됩니다.'); }
+  finally { busy = false; updateBusy(); }
+}
 async function init() {
-  try { state = await MuseumStore.read(); if (state) { state.settings = { ...DEFAULTS, ...state.settings }; if (!Array.isArray(state.works) || state.settings.count < 1 || state.settings.count > 40) throw new Error('invalid'); } $('resumeBtn').disabled = !state; $('setupForm').querySelector('[type=submit]').disabled = false; }
+  try { await renderLobby(); state = await MuseumStore.read(); if (state) { state.settings = { ...DEFAULTS, ...state.settings }; if (!Array.isArray(state.works) || state.settings.count < 1 || state.settings.count > 40) throw new Error('invalid'); } $('resumeBtn').disabled = !state; $('setupForm').querySelector('[type=submit]').disabled = false; }
   catch { storageOK = false; $('setupForm').querySelector('[type=submit]').disabled = true; $('saveStatus').textContent = '저장소를 열 수 없습니다. 다른 탭을 닫거나 일반 브라우저에서 열어 주세요. 기존 사이트 데이터는 지우지 마세요.'; }
   if (!window.jsQR) toast('QR 기능 파일을 찾지 못했습니다. 수동 촬영과 사진 추가를 사용해 주세요.');
   deviceList().catch(() => {});
