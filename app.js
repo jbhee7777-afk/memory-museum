@@ -169,7 +169,7 @@ async function startCamera() {
     if (token !== cameraRequest) return;
     $('videoStage').classList.add('active'); $('cameraPlaceholder').hidden = true; $('cameraBadge').textContent = media.getVideoTracks()[0].label || '카메라 연결됨';
     media.getVideoTracks()[0].addEventListener('ended', () => { if (stream === media) { stopCamera(); status('카메라 연결이 끊겼어요. 연결 후 다시 시작해 주세요.'); } });
-    await deviceList(); updateGuide(); updateBusy(); status('작품을 가이드 안에 놓고 QR을 보여 주세요.'); scan();
+    await deviceList(); updateGuide(); updateBusy(); status('화면 전체에서 QR을 찾고 있어요. 종이 네 모서리와 QR만 화면 안에 보이면 됩니다.'); scan();
   } catch (error) { if (token === cameraRequest) { stopCamera(); status(cameraError(error)); } }
   finally { $('startCamera').disabled = false; }
 }

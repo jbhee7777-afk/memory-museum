@@ -74,7 +74,7 @@ window.MuseumAdvanced = (() => {
     ctx.fillStyle = '#fff'; ctx.fillRect(x - 1, y - 1, right - x + 2, bottom - y + 2);
   }
   function settingsUI(s) {
-    document.getElementById('advancedSettings').innerHTML = '<label class="inline-label"><input id="settingDocument" type="checkbox">밝은 종이 자동 보정 (보조 기능)</label><p class="small">어두운 바탕 위 흰 종이에 적합해요. 찾지 못하면 중앙 가이드로 촬영합니다.</p><label class="inline-label"><input id="settingHideQR" type="checkbox">가장자리의 작은 QR을 흰색으로 가리기</label><p class="small">흰 여백에 있는 QR만 가려요. 작품을 보존하려면 꺼 두세요.</p>';
+    document.getElementById('advancedSettings').innerHTML = '<label class="inline-label"><input id="settingDocument" type="checkbox">밝은 종이 자동 보정 (보조 기능)</label><p class="small">카메라 화면 전체에서 종이를 찾아 반듯하게 잘라요. 경계가 불확실할 때만 네 모서리를 확인합니다.</p><label class="inline-label"><input id="settingHideQR" type="checkbox">가장자리의 작은 QR을 흰색으로 가리기</label><p class="small">흰 여백에 있는 QR만 가려요. 작품을 보존하려면 꺼 두세요.</p>';
     document.getElementById('settingDocument').checked = !!s.autoDocument; document.getElementById('settingHideQR').checked = !!s.hideQR;
   }
   function settingsValues() { return { autoDocument: document.getElementById('settingDocument').checked, hideQR: document.getElementById('settingHideQR').checked }; }
